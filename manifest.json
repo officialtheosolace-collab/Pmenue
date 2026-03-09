@@ -1,0 +1,10 @@
+{
+  "name": "ORDER066 Terminal",
+  "short_name": "ORDER066",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#08110d",
+  "theme_color": "#08110d",
+  "description": "OH7 integrated command station",
+  "icons": []
+}
