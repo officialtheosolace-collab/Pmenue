@@ -1,161 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ORDER066 Terminal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORDER066 Terminal</title>
+  <style>
+    :root{
+      --bg:#08110d;
+      --panel:#0d1b15;
+      --panel2:#10241b;
+      --text:#98ffbf;
+      --bright:#d7ffe8;
+      --line:#38ff9c;
+      --soft:#1d3b2d;
+      --danger:#ff6b8a;
+      --warning:#ffd166;
+    }
 
-<style>
-body {
-    background:#0b0f14;
-    color:#00ff9c;
-    font-family: monospace;
-    margin:0;
-    padding:40px;
-}
+    *{
+      box-sizing:border-box;
+    }
 
-.container {
-    max-width:700px;
-    margin:auto;
-    border:1px solid #00ff9c;
-    padding:30px;
-    box-shadow:0 0 15px #00ff9c33;
-}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top, #0f2018 0%, #08110d 45%, #050907 100%);
+      color:var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      min-height:100vh;
+      padding:16px;
+    }
 
-h1 {
-    color:#00ff9c;
-    border-bottom:1px solid #00ff9c;
-    padding-bottom:10px;
-}
+    .wrap{
+      max-width:820px;
+      margin:0 auto;
+    }
 
-.terminal {
-    margin-top:20px;
-    line-height:1.6;
-}
+    .boot, .panel{
+      background:rgba(7,16,12,0.92);
+      border:1px solid rgba(56,255,156,0.35);
+      border-radius:18px;
+      box-shadow:0 0 0 1px rgba(56,255,156,0.06), 0 0 26px rgba(56,255,156,0.08);
+    }
 
-.stats {
-    margin-top:20px;
-    border-top:1px solid #00ff9c;
-    padding-top:15px;
-}
+    .boot{
+      min-height:55vh;
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      white-space:pre-wrap;
+      font-size:1rem;
+      line-height:1.7;
+    }
 
-button {
-    display:block;
-    width:100%;
-    background:#0b0f14;
-    color:#00ff9c;
-    border:1px solid #00ff9c;
-    padding:12px;
-    margin-top:10px;
-    font-family: monospace;
-    cursor:pointer;
-}
+    .hidden{
+      display:none !important;
+    }
 
-button:hover {
-    background:#00ff9c;
-    color:#0b0f14;
-}
+    .panel{
+      padding:18px;
+    }
 
-.footer {
-    margin-top:30px;
-    opacity:0.6;
-    font-size:12px;
-}
-</style>
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    .title{
+      font-size:1.45rem;
+      font-weight:700;
+      color:var(--bright);
+      letter-spacing:0.04em;
+    }
+
+    .sub{
+      font-size:0.95rem;
+      opacity:0.9;
+    }
+
+    .status-pill{
+      border:1px solid rgba(56,255,156,0.35);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:0.9rem;
+      background:rgba(56,255,156,0.06);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(16,36,27,0.96), rgba(9,19,15,0.96));
+      border:1px solid rgba(56,255,156,0.18);
+      border-radius:16px;
+      padding:16px;
+    }
+
+    .card h2{
+      margin:0 0 12px 0;
+      font-size:1.05rem;
+      color:var(--bright);
+    }
+
+    .terminal-line{
+      margin:4px 0;
+      font-size:1rem;
+      line-height:1.6;
+    }
+
+    .terminal-line strong{
+      color:var(--bright);
+    }
+
+    .stats-list{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .stat{
+      background:rgba(56,255,156,0.05);
+      border:1px solid rgba(56,255,156,0.12);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    .stat-label{
+      font-size:0.85rem;
+      opacity:0.85;
+      margin-bottom:6px;
+    }
+
+    .stat-value{
+      font-size:1.25rem;
+      color:var(--bright);
+      font-weight:700;
+    }
+
+    .buttons{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    button{
+      width:100%;
+      border:none;
+      border-radius:12px;
+      padding:14px 14px;
+      background:linear-gradient(180deg, #123021, #0d2318);
+      color:var(--bright);
+      border:1px solid rgba(56,255,156,0.22);
+      font-family:inherit;
+      font-size:1rem;
+      cursor:pointer;
+      text-align:left;
+      transition:transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    button:active{
+      transform:scale(0.99);
+    }
+
+    button:hover{
+      background:linear-gradient(180deg, #153828, #10291d);
+      border-color:rgba(56,255,156,0.38);
+    }
+
+    .small-buttons{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .small-buttons button{
+      text-align:center;
+      padding:12px 10px;
+    }
+
+    .output{
+      min-height:140px;
+      background:rgba(0,0,0,0.22);
+      border:1px solid rgba(56,255,156,0.16);
+      border-radius:14px;
+      padding:14px;
+      white-space:pre-wrap;
+      line-height:1.65;
+      font-size:0.98rem;
+    }
+
+    .muted{
+      opacity:0.8;
+    }
+
+    .danger{
+      color:var(--danger);
+    }
+
+    .warning{
+      color:var(--warning);
+    }
+
+    .footer{
+      margin-top:14px;
+      text-align:center;
+      opacity:0.6;
+      font-size:0.85rem;
+    }
+
+    @media (min-width: 720px){
+      body{
+        padding:24px;
+      }
+
+      .grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .full{
+        grid-column:1 / -1;
+      }
+
+      .buttons{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .title{
+        font-size:1.8rem;
+      }
+
+      .panel{
+        padding:22px;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div id="bootScreen" class="boot"></div>
 
-<div class="container">
+    <div id="mainPanel" class="panel hidden">
+      <div class="topbar">
+        <div>
+          <div class="title">ORDER066 TERMINAL</div>
+          <div class="sub" id="bootTagline">OH7 // command station online</div>
+        </div>
+        <div class="status-pill" id="aliveStatus">STATUS: Alive</div>
+      </div>
 
-<h1>ORDER066 TERMINAL</h1>
+      <div class="grid">
+        <div class="card">
+          <h2>THEO CHARACTER SHEET</h2>
+          <div class="terminal-line"><strong>Name:</strong> Theo</div>
+          <div class="terminal-line"><strong>Level:</strong> <span id="level">28</span></div>
+          <div class="terminal-line"><strong>XP:</strong> <span id="xp">1370</span></div>
+          <div class="terminal-line"><strong>Gold:</strong> £<span id="gold">300</span></div>
+          <div class="terminal-line"><strong>Status:</strong> Alive</div>
 
-<div class="terminal">
-> neural handshake detected<br>
-> operator verified<br><br>
+          <div class="stats-list" style="margin-top:14px;">
+            <div class="stat">
+              <div class="stat-label">Creativity</div>
+              <div class="stat-value" id="creativity">7</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Discipline</div>
+              <div class="stat-value" id="discipline">5</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Energy</div>
+              <div class="stat-value" id="energy">4</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Chaos</div>
+              <div class="stat-value" id="chaos">9</div>
+            </div>
+          </div>
 
-Name: Theo<br>
-Level: 28<br>
-XP: 1370<br>
-Status: Alive
-</div>
+          <div class="small-buttons">
+            <button onclick="addXP(25)">+25 XP</button>
+            <button onclick="addGold(10)">+£10 Gold</button>
+            <button onclick="changeStat('energy',1)">+1 Energy</button>
+            <button onclick="changeStat('chaos',1)">+1 Chaos</button>
+          </div>
+        </div>
 
-<div class="stats">
+        <div class="card">
+          <h2>OH7 // Terminal Feed</h2>
+          <div class="output" id="output">
+> neural handshake complete
+> operator verified
+> awaiting command...
+          </div>
+        </div>
 
-<h2>THEO CHARACTER SHEET</h2>
+        <div class="card full">
+          <h2>COMMAND MENU</h2>
+          <div class="buttons">
+            <button onclick="logQuest()">[1] Log Quest</button>
+            <button onclick="uploadFile()">[2] Upload File</button>
+            <button onclick="checkCampaign()">[3] Check Campaign</button>
+            <button onclick="fightBoss()">[4] Fight Boss</button>
+            <button onclick="creativePrompt()">[5] Creative Prompt</button>
+            <button onclick="dailyMission()">[6] Daily Mission</button>
+            <button onclick="summonOH7()">[7] Summon OH7</button>
+            <button onclick="campfire()">[8] Campfire Log</button>
+          </div>
+        </div>
 
-Gold: £300<br><br>
+        <div class="card full">
+          <h2>Quick Controls</h2>
+          <div class="small-buttons" style="margin-top:0;">
+            <button onclick="saveData()">Save</button>
+            <button onclick="loadData()">Reload</button>
+            <button onclick="resetData()">Reset Stats</button>
+            <button onclick="nfcMode()">NFC Boot</button>
+          </div>
+          <div class="footer">OH7 SYSTEM v0.2 // local device memory active</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-Stats<br>
-Creativity: 7<br>
-Discipline: 5<br>
-Energy: 4<br>
-Chaos: 9
+  <script>
+    const defaultData = {
+      name: "Theo",
+      level: 28,
+      xp: 1370,
+      gold: 300,
+      creativity: 7,
+      discipline: 5,
+      energy: 4,
+      chaos: 9,
+      campaign: [
+        "Explored overtone singing",
+        "Recorded demo file",
+        "Practiced ragas and spectrum analyzer work"
+      ]
+    };
 
-</div>
+    let state = {};
 
-<div class="terminal">
+    function getSavedData(){
+      const raw = localStorage.getItem("order066_terminal_data");
+      return raw ? JSON.parse(raw) : null;
+    }
 
-<h2>COMMAND MENU</h2>
+    function saveData(){
+      localStorage.setItem("order066_terminal_data", JSON.stringify(state));
+      writeOutput(`> save complete\n> character sheet updated\n> operator data secured`);
+    }
 
-<button onclick="alert('Log Quest system coming soon')">[1] Log Quest</button>
+    function loadData(){
+      state = getSavedData() || {...defaultData};
+      render();
+      writeOutput(`> data sync complete\n> welcome back operator\n> profile restored`);
+    }
 
-<button onclick="alert('Upload File system coming soon')">[2] Upload File</button>
+    function resetData(){
+      if(confirm("Reset character sheet and campaign data?")){
+        state = {...defaultData};
+        saveData();
+        render();
+        writeOutput(`> warning: profile reset complete\n> all values restored to default`);
+      }
+    }
 
-<button onclick="alert('Campaign Log coming soon')">[3] Check Campaign</button>
+    function render(){
+      document.getElementById("level").textContent = state.level;
+      document.getElementById("xp").textContent = state.xp;
+      document.getElementById("gold").textContent = state.gold;
+      document.getElementById("creativity").textContent = state.creativity;
+      document.getElementById("discipline").textContent = state.discipline;
+      document.getElementById("energy").textContent = state.energy;
+      document.getElementById("chaos").textContent = state.chaos;
+    }
 
-<button onclick="fightBoss()">[4] Fight Boss</button>
+    function addXP(amount){
+      state.xp += amount;
+      while(state.xp >= state.level * 100){
+        state.xp -= state.level * 100;
+        state.level += 1;
+        writeOutput(`> level up detected\n> operator advanced to level ${state.level}\n> OH7: try not to waste it.`);
+      }
+      render();
+      saveSilently();
+    }
 
-<button onclick="creativePrompt()">[5] Creative Prompt</button>
+    function addGold(amount){
+      state.gold += amount;
+      render();
+      saveSilently();
+      writeOutput(`> treasury updated\n> +£${amount} gold added`);
+    }
 
-<button onclick="dailyMission()">[6] Daily Mission</button>
+    function changeStat(stat, amount){
+      state[stat] += amount;
+      render();
+      saveSilently();
+      writeOutput(`> stat modified\n> ${stat.toUpperCase()} ${amount >= 0 ? "+" : ""}${amount}`);
+    }
 
-</div>
+    function saveSilently(){
+      localStorage.setItem("order066_terminal_data", JSON.stringify(state));
+    }
 
-<div class="footer">
-OH7 SYSTEM v0.1<br>
-tap implant to access terminal
-</div>
+    function writeOutput(text){
+      document.getElementById("output").textContent = text;
+    }
 
-</div>
+    function logQuest(){
+      const entry = prompt("Log Quest: what did you do?");
+      if(!entry) return;
+      state.campaign.unshift(entry);
+      addXP(20);
+      writeOutput(`> quest logged\n> "${entry}"\n> reward: +20 XP\n> OH7: acceptable progress.`);
+    }
 
-<script>
+    function uploadFile(){
+      addXP(30);
+      writeOutput(`> artifact upload simulated\n> file existence confirmed\n> reward: +30 XP\n> rule preserved: the day counts.`);
+    }
 
-function fightBoss(){
-    const bosses = [
-        "THE PROCRASTINATOR\nWeakness: Start a task for 10 minutes",
-        "DOOMSCROLL DEMON\nWeakness: Turn phone off and create",
-        "THE DRIFT\nWeakness: Focus for 20 minutes",
-        "THE VOID\nWeakness: Upload a file"
-    ];
+    function checkCampaign(){
+      const logs = state.campaign.length
+        ? state.campaign.map((item, i) => `[${i+1}] ${item}`).join("\n")
+        : "No campaign logs found.";
+      writeOutput(`> campaign log opened\n\n${logs}`);
+    }
 
-    alert("BOSS ENCOUNTER\n\n" + bosses[Math.floor(Math.random()*bosses.length)]);
-}
+    function fightBoss(){
+      const bosses = [
+        {
+          name: "THE PROCRASTINATOR",
+          hp: 20,
+          weakness: "Start for 10 minutes",
+          reward: "+40 XP"
+        },
+        {
+          name: "DOOMSCROLL DEMON",
+          hp: 16,
+          weakness: "Lock the phone and create",
+          reward: "+35 XP"
+        },
+        {
+          name: "THE DRIFT",
+          hp: 24,
+          weakness: "20 minutes focused work",
+          reward: "+50 XP"
+        },
+        {
+          name: "SIGNAL LOSS",
+          hp: 18,
+          weakness: "Finish one real output",
+          reward: "+45 XP"
+        }
+      ];
+      const boss = bosses[Math.floor(Math.random() * bosses.length)];
+      writeOutput(`> boss encounter detected\n\n${boss.name}\nHP: ${boss.hp}\nWeakness: ${boss.weakness}\nReward: ${boss.reward}\n\nOH7: stop staring at the enemy and hit it.`);
+    }
 
-function creativePrompt(){
-    const prompts = [
-        "Write a riff using D Dorian",
-        "Create a groove in 7/8",
-        "Record a 30 second idea",
-        "Write a melody using only 3 notes",
-        "Experiment with overtones"
-    ];
+    function creativePrompt(){
+      const prompts = [
+        "Write a riff in D Dorian using only the middle 4 strings.",
+        "Create a 30-second idea before consuming any content.",
+        "Use one drone note and build tension over it.",
+        "Make something ugly on purpose, then refine it.",
+        "Record a melody using only 3 notes and rhythm changes."
+      ];
+      const chosen = prompts[Math.floor(Math.random() * prompts.length)];
+      writeOutput(`> creative prompt generated\n\n${chosen}\n\nOH7: produce something. Preferably before entropy wins.`);
+    }
 
-    alert("CREATIVE PROMPT\n\n" + prompts[Math.floor(Math.random()*prompts.length)]);
-}
+    function dailyMission(){
+      const missions = [
+        "Make one actual file today.",
+        "Practice with intent for 20 minutes.",
+        "Record one rough idea and keep it.",
+        "Do one task that moves you toward creative, free, and actually happy.",
+        "Finish a loop instead of starting five new ones."
+      ];
+      const chosen = missions[Math.floor(Math.random() * missions.length)];
+      writeOutput(`> daily mission issued\n\n${chosen}\n\nReward: +25 XP on completion.`);
+    }
 
-function dailyMission(){
-    const missions = [
-        "Record one piece of music today",
-        "Practice 20 minutes focused",
-        "Upload a creative artifact",
-        "Write one new riff",
-        "Experiment with sound design"
-    ];
+    function summonOH7(){
+      const lines = [
+        "OH7 online. Try not to embarrass us today.",
+        "Operator detected. Chaos levels remain professionally concerning.",
+        "You again. Fine. Let's make this day count.",
+        "Neural handshake stable. Motivation unstable. We proceed anyway."
+      ];
+      const chosen = lines[Math.floor(Math.random() * lines.length)];
+      writeOutput(`> summon sequence complete\n\n${chosen}`);
+    }
 
-    alert("DAILY MISSION\n\n" + missions[Math.floor(Math.random()*missions.length)]);
-}
+    function campfire(){
+      writeOutput(`> campfire opened\n\nRecent truths:\n- Output matters more than prep\n- A music day counts when a file exists\n- Tiny progress still damages the boss\n\nOH7: sit down, breathe, continue.`);
+    }
 
-</script>
+    function nfcMode(){
+      const bootScreen = document.getElementById("bootScreen");
+      const mainPanel = document.getElementById("mainPanel");
+      mainPanel.classList.add("hidden");
+      bootScreen.classList.remove("hidden");
+      runBoot();
+    }
 
+    async function runBoot(){
+      const bootLines = [
+        "OH7 // COMMAND STATION",
+        "",
+        "> establishing neural handshake...",
+        "> reading implant signal...",
+        "> operator verified",
+        "> loading character sheet...",
+        "> syncing terminal modules...",
+        "",
+        "Welcome back, Theo."
+      ];
+
+      const boot = document.getElementById("bootScreen");
+      boot.textContent = "";
+
+      for (const line of bootLines){
+        await typeLine(boot, line + "\n");
+      }
+
+      setTimeout(() => {
+        document.getElementById("bootScreen").classList.add("hidden");
+        document.getElementById("mainPanel").classList.remove("hidden");
+        summonOH7();
+      }, 500);
+    }
+
+    function typeLine(el, text){
+      return new Promise(resolve => {
+        let i = 0;
+        const speed = 28;
+        const timer = setInterval(() => {
+          el.textContent += text[i];
+          i++;
+          if(i >= text.length){
+            clearInterval(timer);
+            resolve();
+          }
+        }, speed);
+      });
+    }
+
+    loadData();
+    runBoot();
+  </script>
 </body>
-  </html>
+</html>
