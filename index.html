@@ -4,67 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ORDER066 Terminal</title>
+  <meta name="theme-color" content="#08110d" />
+  <link rel="manifest" href="./manifest.json" />
   <style>
     :root{
       --bg:#08110d;
       --panel:#0d1b15;
       --panel2:#10241b;
       --text:#98ffbf;
-      --bright:#d7ffe8;
+      --bright:#e4ffee;
       --line:#38ff9c;
       --soft:#1d3b2d;
       --danger:#ff6b8a;
       --warning:#ffd166;
     }
 
-    *{
-      box-sizing:border-box;
-    }
+    * { box-sizing:border-box; }
 
     body{
       margin:0;
+      min-height:100vh;
       background:
-        radial-gradient(circle at top, #0f2018 0%, #08110d 45%, #050907 100%);
+        radial-gradient(circle at top, #102018 0%, #08110d 46%, #050907 100%);
       color:var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      min-height:100vh;
       padding:16px;
     }
 
     .wrap{
-      max-width:820px;
+      max-width:900px;
       margin:0 auto;
     }
 
     .boot, .panel{
-      background:rgba(7,16,12,0.92);
+      background:rgba(7,16,12,0.94);
       border:1px solid rgba(56,255,156,0.35);
       border-radius:18px;
       box-shadow:0 0 0 1px rgba(56,255,156,0.06), 0 0 26px rgba(56,255,156,0.08);
     }
 
     .boot{
-      min-height:55vh;
+      min-height:58vh;
       padding:22px;
       display:flex;
       flex-direction:column;
       justify-content:center;
       white-space:pre-wrap;
-      font-size:1rem;
-      line-height:1.7;
+      font-size:1.05rem;
+      line-height:1.75;
     }
 
-    .hidden{
-      display:none !important;
-    }
+    .hidden{ display:none !important; }
 
-    .panel{
-      padding:18px;
-    }
+    .panel{ padding:18px; }
 
     .topbar{
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
       gap:12px;
       margin-bottom:14px;
@@ -72,22 +68,23 @@
     }
 
     .title{
-      font-size:1.45rem;
+      font-size:1.5rem;
       font-weight:700;
       color:var(--bright);
       letter-spacing:0.04em;
     }
 
     .sub{
-      font-size:0.95rem;
+      font-size:1rem;
       opacity:0.9;
+      margin-top:4px;
     }
 
     .status-pill{
       border:1px solid rgba(56,255,156,0.35);
-      padding:8px 12px;
+      padding:9px 12px;
       border-radius:999px;
-      font-size:0.9rem;
+      font-size:0.95rem;
       background:rgba(56,255,156,0.06);
     }
 
@@ -98,7 +95,7 @@
     }
 
     .card{
-      background:linear-gradient(180deg, rgba(16,36,27,0.96), rgba(9,19,15,0.96));
+      background:linear-gradient(180deg, rgba(16,36,27,0.97), rgba(9,19,15,0.97));
       border:1px solid rgba(56,255,156,0.18);
       border-radius:16px;
       padding:16px;
@@ -106,24 +103,23 @@
 
     .card h2{
       margin:0 0 12px 0;
-      font-size:1.05rem;
+      font-size:1.08rem;
       color:var(--bright);
     }
 
     .terminal-line{
       margin:4px 0;
-      font-size:1rem;
-      line-height:1.6;
+      font-size:1.02rem;
+      line-height:1.65;
     }
 
-    .terminal-line strong{
-      color:var(--bright);
-    }
+    .terminal-line strong{ color:var(--bright); }
 
     .stats-list{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
+      margin-top:14px;
     }
 
     .stat{
@@ -134,13 +130,13 @@
     }
 
     .stat-label{
-      font-size:0.85rem;
+      font-size:0.88rem;
       opacity:0.85;
       margin-bottom:6px;
     }
 
     .stat-value{
-      font-size:1.25rem;
+      font-size:1.3rem;
       color:var(--bright);
       font-weight:700;
     }
@@ -155,7 +151,7 @@
       width:100%;
       border:none;
       border-radius:12px;
-      padding:14px 14px;
+      padding:15px 14px;
       background:linear-gradient(180deg, #123021, #0d2318);
       color:var(--bright);
       border:1px solid rgba(56,255,156,0.22);
@@ -166,9 +162,7 @@
       transition:transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
     }
 
-    button:active{
-      transform:scale(0.99);
-    }
+    button:active{ transform:scale(0.99); }
 
     button:hover{
       background:linear-gradient(180deg, #153828, #10291d);
@@ -188,59 +182,33 @@
     }
 
     .output{
-      min-height:140px;
+      min-height:160px;
       background:rgba(0,0,0,0.22);
       border:1px solid rgba(56,255,156,0.16);
       border-radius:14px;
       padding:14px;
       white-space:pre-wrap;
-      line-height:1.65;
-      font-size:0.98rem;
-    }
-
-    .muted{
-      opacity:0.8;
-    }
-
-    .danger{
-      color:var(--danger);
-    }
-
-    .warning{
-      color:var(--warning);
+      line-height:1.75;
+      font-size:1rem;
     }
 
     .footer{
       margin-top:14px;
       text-align:center;
       opacity:0.6;
-      font-size:0.85rem;
+      font-size:0.9rem;
     }
 
+    .full{ width:100%; }
+
     @media (min-width: 720px){
-      body{
-        padding:24px;
-      }
-
-      .grid{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .full{
-        grid-column:1 / -1;
-      }
-
-      .buttons{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .title{
-        font-size:1.8rem;
-      }
-
-      .panel{
-        padding:22px;
-      }
+      body{ padding:24px; }
+      .grid{ grid-template-columns:1fr 1fr; }
+      .full{ grid-column:1 / -1; }
+      .buttons{ grid-template-columns:1fr 1fr; }
+      .title{ font-size:1.85rem; }
+      .panel{ padding:22px; }
+      .boot{ font-size:1.1rem; }
     }
   </style>
 </head>
@@ -252,7 +220,7 @@
       <div class="topbar">
         <div>
           <div class="title">ORDER066 TERMINAL</div>
-          <div class="sub" id="bootTagline">OH7 // command station online</div>
+          <div class="sub">OH7 // command station online</div>
         </div>
         <div class="status-pill" id="aliveStatus">STATUS: Alive</div>
       </div>
@@ -262,14 +230,14 @@
           <h2>THEO CHARACTER SHEET</h2>
           <div class="terminal-line"><strong>Name:</strong> Theo</div>
           <div class="terminal-line"><strong>Level:</strong> <span id="level">28</span></div>
-          <div class="terminal-line"><strong>XP:</strong> <span id="xp">1370</span></div>
+          <div class="terminal-line"><strong>XP:</strong> <span id="xp">1400</span></div>
           <div class="terminal-line"><strong>Gold:</strong> £<span id="gold">300</span></div>
           <div class="terminal-line"><strong>Status:</strong> Alive</div>
 
-          <div class="stats-list" style="margin-top:14px;">
+          <div class="stats-list">
             <div class="stat">
               <div class="stat-label">Creativity</div>
-              <div class="stat-value" id="creativity">7</div>
+              <div class="stat-value" id="creativity">8</div>
             </div>
             <div class="stat">
               <div class="stat-label">Discipline</div>
@@ -281,7 +249,15 @@
             </div>
             <div class="stat">
               <div class="stat-label">Chaos</div>
-              <div class="stat-value" id="chaos">9</div>
+              <div class="stat-value" id="chaos">8</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Focus</div>
+              <div class="stat-value" id="focus">5</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Curiosity</div>
+              <div class="stat-value" id="curiosity">9</div>
             </div>
           </div>
 
@@ -289,7 +265,7 @@
             <button onclick="addXP(25)">+25 XP</button>
             <button onclick="addGold(10)">+£10 Gold</button>
             <button onclick="changeStat('energy',1)">+1 Energy</button>
-            <button onclick="changeStat('chaos',1)">+1 Chaos</button>
+            <button onclick="changeStat('discipline',1)">+1 Discipline</button>
           </div>
         </div>
 
@@ -322,9 +298,9 @@
             <button onclick="saveData()">Save</button>
             <button onclick="loadData()">Reload</button>
             <button onclick="resetData()">Reset Stats</button>
-            <button onclick="nfcMode()">NFC Boot</button>
+            <button onclick="runBoot()">NFC Boot</button>
           </div>
-          <div class="footer">OH7 SYSTEM v0.2 // local device memory active</div>
+          <div class="footer">OH7 SYSTEM v0.3 // offline cache ready // local device storage active</div>
         </div>
       </div>
     </div>
@@ -334,16 +310,18 @@
     const defaultData = {
       name: "Theo",
       level: 28,
-      xp: 1370,
+      xp: 1400,
       gold: 300,
-      creativity: 7,
+      creativity: 8,
       discipline: 5,
       energy: 4,
-      chaos: 9,
+      chaos: 8,
+      focus: 5,
+      curiosity: 9,
       campaign: [
         "Explored overtone singing",
         "Recorded demo file",
-        "Practiced ragas and spectrum analyzer work"
+        "Built ORDER066 terminal"
       ]
     };
 
@@ -356,13 +334,13 @@
 
     function saveData(){
       localStorage.setItem("order066_terminal_data", JSON.stringify(state));
-      writeOutput(`> save complete\n> character sheet updated\n> operator data secured`);
+      writeOutput("> save complete\n> character sheet updated\n> operator data secured");
     }
 
     function loadData(){
       state = getSavedData() || {...defaultData};
       render();
-      writeOutput(`> data sync complete\n> welcome back operator\n> profile restored`);
+      writeOutput("> data sync complete\n> welcome back operator\n> profile restored");
     }
 
     function resetData(){
@@ -370,7 +348,7 @@
         state = {...defaultData};
         saveData();
         render();
-        writeOutput(`> warning: profile reset complete\n> all values restored to default`);
+        writeOutput("> warning: profile reset complete\n> all values restored to default");
       }
     }
 
@@ -382,6 +360,16 @@
       document.getElementById("discipline").textContent = state.discipline;
       document.getElementById("energy").textContent = state.energy;
       document.getElementById("chaos").textContent = state.chaos;
+      document.getElementById("focus").textContent = state.focus;
+      document.getElementById("curiosity").textContent = state.curiosity;
+    }
+
+    function saveSilently(){
+      localStorage.setItem("order066_terminal_data", JSON.stringify(state));
+    }
+
+    function writeOutput(text){
+      document.getElementById("output").textContent = text;
     }
 
     function addXP(amount){
@@ -409,14 +397,6 @@
       writeOutput(`> stat modified\n> ${stat.toUpperCase()} ${amount >= 0 ? "+" : ""}${amount}`);
     }
 
-    function saveSilently(){
-      localStorage.setItem("order066_terminal_data", JSON.stringify(state));
-    }
-
-    function writeOutput(text){
-      document.getElementById("output").textContent = text;
-    }
-
     function logQuest(){
       const entry = prompt("Log Quest: what did you do?");
       if(!entry) return;
@@ -432,37 +412,17 @@
 
     function checkCampaign(){
       const logs = state.campaign.length
-        ? state.campaign.map((item, i) => `[${i+1}] ${item}`).join("\n")
+        ? state.campaign.map((item, i) => `[${i + 1}] ${item}`).join("\n")
         : "No campaign logs found.";
       writeOutput(`> campaign log opened\n\n${logs}`);
     }
 
     function fightBoss(){
       const bosses = [
-        {
-          name: "THE PROCRASTINATOR",
-          hp: 20,
-          weakness: "Start for 10 minutes",
-          reward: "+40 XP"
-        },
-        {
-          name: "DOOMSCROLL DEMON",
-          hp: 16,
-          weakness: "Lock the phone and create",
-          reward: "+35 XP"
-        },
-        {
-          name: "THE DRIFT",
-          hp: 24,
-          weakness: "20 minutes focused work",
-          reward: "+50 XP"
-        },
-        {
-          name: "SIGNAL LOSS",
-          hp: 18,
-          weakness: "Finish one real output",
-          reward: "+45 XP"
-        }
+        { name: "THE DRIFT", hp: 24, weakness: "20 minutes focused work", reward: "+50 XP" },
+        { name: "THE PROCRASTINATOR", hp: 20, weakness: "Start for 10 minutes", reward: "+40 XP" },
+        { name: "DOOMSCROLL DEMON", hp: 16, weakness: "Lock the phone and create", reward: "+35 XP" },
+        { name: "SIGNAL LOSS", hp: 18, weakness: "Finish one real output", reward: "+45 XP" }
       ];
       const boss = bosses[Math.floor(Math.random() * bosses.length)];
       writeOutput(`> boss encounter detected\n\n${boss.name}\nHP: ${boss.hp}\nWeakness: ${boss.weakness}\nReward: ${boss.reward}\n\nOH7: stop staring at the enemy and hit it.`);
@@ -507,14 +467,6 @@
       writeOutput(`> campfire opened\n\nRecent truths:\n- Output matters more than prep\n- A music day counts when a file exists\n- Tiny progress still damages the boss\n\nOH7: sit down, breathe, continue.`);
     }
 
-    function nfcMode(){
-      const bootScreen = document.getElementById("bootScreen");
-      const mainPanel = document.getElementById("mainPanel");
-      mainPanel.classList.add("hidden");
-      bootScreen.classList.remove("hidden");
-      runBoot();
-    }
-
     async function runBoot(){
       const bootLines = [
         "OH7 // COMMAND STATION",
@@ -529,23 +481,26 @@
       ];
 
       const boot = document.getElementById("bootScreen");
+      const main = document.getElementById("mainPanel");
+      main.classList.add("hidden");
+      boot.classList.remove("hidden");
       boot.textContent = "";
 
       for (const line of bootLines){
-        await typeLine(boot, line + "\n");
+        await typeLine(boot, line + "\\n");
       }
 
       setTimeout(() => {
-        document.getElementById("bootScreen").classList.add("hidden");
-        document.getElementById("mainPanel").classList.remove("hidden");
+        boot.classList.add("hidden");
+        main.classList.remove("hidden");
         summonOH7();
-      }, 500);
+      }, 450);
     }
 
     function typeLine(el, text){
       return new Promise(resolve => {
         let i = 0;
-        const speed = 28;
+        const speed = 26;
         const timer = setInterval(() => {
           el.textContent += text[i];
           i++;
@@ -559,6 +514,12 @@
 
     loadData();
     runBoot();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
   </script>
 </body>
-</html>
+  </html>
