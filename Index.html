@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ORDER066 Terminal</title>
+
+<style>
+body {
+    background:#0b0f14;
+    color:#00ff9c;
+    font-family: monospace;
+    margin:0;
+    padding:40px;
+}
+
+.container {
+    max-width:700px;
+    margin:auto;
+    border:1px solid #00ff9c;
+    padding:30px;
+    box-shadow:0 0 15px #00ff9c33;
+}
+
+h1 {
+    color:#00ff9c;
+    border-bottom:1px solid #00ff9c;
+    padding-bottom:10px;
+}
+
+.terminal {
+    margin-top:20px;
+    line-height:1.6;
+}
+
+.stats {
+    margin-top:20px;
+    border-top:1px solid #00ff9c;
+    padding-top:15px;
+}
+
+button {
+    display:block;
+    width:100%;
+    background:#0b0f14;
+    color:#00ff9c;
+    border:1px solid #00ff9c;
+    padding:12px;
+    margin-top:10px;
+    font-family: monospace;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#00ff9c;
+    color:#0b0f14;
+}
+
+.footer {
+    margin-top:30px;
+    opacity:0.6;
+    font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ORDER066 TERMINAL</h1>
+
+<div class="terminal">
+> neural handshake detected<br>
+> operator verified<br><br>
+
+Name: Theo<br>
+Level: 28<br>
+XP: 1370<br>
+Status: Alive
+</div>
+
+<div class="stats">
+
+<h2>THEO CHARACTER SHEET</h2>
+
+Gold: £300<br><br>
+
+Stats<br>
+Creativity: 7<br>
+Discipline: 5<br>
+Energy: 4<br>
+Chaos: 9
+
+</div>
+
+<div class="terminal">
+
+<h2>COMMAND MENU</h2>
+
+<button onclick="alert('Log Quest system coming soon')">[1] Log Quest</button>
+
+<button onclick="alert('Upload File system coming soon')">[2] Upload File</button>
+
+<button onclick="alert('Campaign Log coming soon')">[3] Check Campaign</button>
+
+<button onclick="fightBoss()">[4] Fight Boss</button>
+
+<button onclick="creativePrompt()">[5] Creative Prompt</button>
+
+<button onclick="dailyMission()">[6] Daily Mission</button>
+
+</div>
+
+<div class="footer">
+OH7 SYSTEM v0.1<br>
+tap implant to access terminal
+</div>
+
+</div>
+
+<script>
+
+function fightBoss(){
+    const bosses = [
+        "THE PROCRASTINATOR\nWeakness: Start a task for 10 minutes",
+        "DOOMSCROLL DEMON\nWeakness: Turn phone off and create",
+        "THE DRIFT\nWeakness: Focus for 20 minutes",
+        "THE VOID\nWeakness: Upload a file"
+    ];
+
+    alert("BOSS ENCOUNTER\n\n" + bosses[Math.floor(Math.random()*bosses.length)]);
+}
+
+function creativePrompt(){
+    const prompts = [
+        "Write a riff using D Dorian",
+        "Create a groove in 7/8",
+        "Record a 30 second idea",
+        "Write a melody using only 3 notes",
+        "Experiment with overtones"
+    ];
+
+    alert("CREATIVE PROMPT\n\n" + prompts[Math.floor(Math.random()*prompts.length)]);
+}
+
+function dailyMission(){
+    const missions = [
+        "Record one piece of music today",
+        "Practice 20 minutes focused",
+        "Upload a creative artifact",
+        "Write one new riff",
+        "Experiment with sound design"
+    ];
+
+    alert("DAILY MISSION\n\n" + missions[Math.floor(Math.random()*missions.length)]);
+}
+
+</script>
+
+</body>
+  </html>
