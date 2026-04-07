@@ -1,536 +1,709 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OH7 Pause</title>
   <style>
-    :root{
-      --bg:#06080b;
-      --panel:rgba(10,14,18,.38);
-      --line:rgba(255,255,255,.13);
-      --text:#e7edf3;
-      --muted:#95a2ad;
-      --accent:#ff6b4a;
-      --accent-soft:rgba(255,107,74,.18);
-      --cyan:#8fd6ff;
-      --shadow:rgba(0,0,0,.45);
-    }
+    :root {
+      --bg: #060a10;
+      --panel: rgba(10, 18, 30, 0.78);
+      --panel-2: rgba(15, 25, 38, 0.92);
+      --line: rgba(125, 171, 215, 0.14);
+      --line-strong: rgba(125, 171, 215, 0.26);
+      --text: #dfe8f4;
+      --muted: #7d91ad;
+      --accent: #ff6f4d;
+      --accent-soft: rgba(255, 111, 77, 0.22);
+      --cyan: #75d8f7;
+      --danger: #e24848;
+      --shadow: 0 0 40px rgba(0, 0, 0, 0.38);
+      --radius: 22px;
+      --menu-width: min(860px, 88vw);
+    }* { box-sizing: border-box; }
 
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:#000;
-      overflow:hidden;
-    }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(35, 69, 120, 0.18), transparent 28%),
+    radial-gradient(circle at 80% 30%, rgba(255, 111, 77, 0.09), transparent 24%),
+    linear-gradient(180deg, #08111b 0%, #05080d 100%);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
 
-    .scene{
-      position:relative;
-      min-height:100vh;
-      background:
-        radial-gradient(1200px 600px at 72% 18%, rgba(255,147,110,.15), transparent 45%),
-        radial-gradient(900px 500px at 25% 82%, rgba(20,40,60,.35), transparent 45%),
-        linear-gradient(180deg, #1b232c 0%, #11171d 28%, #0a0f13 58%, #070a0d 100%);
-    }
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
 
-    /* fake cinematic landscape */
-    .fog{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(900px 220px at 55% 55%, rgba(255,255,255,.08), transparent 55%),
-        radial-gradient(1000px 260px at 35% 62%, rgba(255,255,255,.06), transparent 58%),
-        radial-gradient(800px 180px at 65% 72%, rgba(255,255,255,.04), transparent 50%);
-      filter:blur(14px);
-      opacity:.85;
-      pointer-events:none;
-    }
+body::before {
+  background:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black 20%, transparent 85%);
+  opacity: 0.22;
+}
 
-    .mountains{
-      position:absolute; inset:auto 0 0 0; height:65%;
-      background:
-        linear-gradient(180deg, transparent 0 22%, rgba(0,0,0,.04) 22%),
-        polygon(0 100%, 0 58%, 10% 52%, 18% 57%, 28% 44%, 39% 53%, 48% 46%, 58% 55%, 68% 43%, 77% 49%, 87% 37%, 100% 50%, 100% 100%);
-      pointer-events:none;
-    }
+body::after {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255,255,255,0.025),
+    rgba(255,255,255,0.025) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.26;
+  animation: scanDrift 8s linear infinite;
+}
 
-    .mountains::before,
-    .mountains::after{
-      content:"";
-      position:absolute; inset:auto 0 0 0;
-      height:100%;
-      background:#0a0f13;
-      clip-path:polygon(0 100%, 0 68%, 10% 58%, 20% 66%, 30% 50%, 42% 61%, 53% 48%, 66% 62%, 77% 44%, 88% 56%, 100% 42%, 100% 100%);
-      opacity:.95;
-    }
+@keyframes scanDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(12px); }
+}
 
-    .mountains::after{
-      background:#111820;
-      clip-path:polygon(0 100%, 0 76%, 12% 69%, 22% 74%, 31% 64%, 42% 70%, 55% 60%, 67% 72%, 77% 65%, 89% 69%, 100% 61%, 100% 100%);
-      opacity:.7;
-    }
+.app {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 18px;
+  z-index: 1;
+}
 
-    .tower{
-      position:absolute;
-      right:16%;
-      bottom:25%;
-      width:110px;
-      height:280px;
-      transform:skew(-2deg);
-      z-index:1;
-    }
+.menu-shell {
+  width: var(--menu-width);
+  max-width: 100%;
+  background: linear-gradient(180deg, rgba(7, 14, 22, 0.72), rgba(4, 8, 14, 0.84));
+  border: 1px solid rgba(120, 169, 220, 0.12);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  padding: 38px 22px 20px;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px) scale(0.985);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
 
-    .tower .mast{
-      position:absolute;
-      left:50%;
-      bottom:0;
-      width:14px;
-      height:100%;
-      transform:translateX(-50%);
-      background:linear-gradient(180deg, #2f3c47, #151d24);
-      box-shadow:0 0 0 1px rgba(255,255,255,.05);
-    }
+.menu-shell.ready {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 
-    .tower .mast::before{
-      content:"";
-      position:absolute;
-      left:-42px; right:-42px; bottom:36px; top:35px;
-      background:
-        linear-gradient(63deg, transparent 47%, rgba(255,255,255,.10) 48% 52%, transparent 53%),
-        linear-gradient(-63deg, transparent 47%, rgba(255,255,255,.10) 48% 52%, transparent 53%);
-      background-size:100% 40px;
-      opacity:.45;
-    }
+.menu-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(255,111,77,0.06) 50%, transparent 100%),
+    radial-gradient(circle at top right, rgba(255, 111, 77, 0.12), transparent 30%);
+  pointer-events: none;
+}
 
-    .tower .platform{
-      position:absolute;
-      left:50%;
-      top:58px;
-      transform:translateX(-50%);
-      width:110px;
-      height:52px;
-      background:linear-gradient(180deg, #27333d, #141b21);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 18px 45px rgba(0,0,0,.35);
-    }
+.menu-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 12px;
+}
 
-    .tower .platform::before{
-      content:"";
-      position:absolute;
-      inset:-10px -8px auto -8px;
-      height:10px;
-      background:#394854;
-      clip-path:polygon(8% 100%, 92% 100%, 100% 0, 0 0);
-      opacity:.8;
-    }
+.menu-brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.9;
+}
 
-    .tower .light,
-    .tower .light2{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:var(--accent);
-      box-shadow:0 0 10px var(--accent), 0 0 24px rgba(255,107,74,.5);
-    }
+.menu-brand::before {
+  content: "";
+  width: 42px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--text));
+  opacity: 0.55;
+}
 
-    .tower .light{ top:16px; }
-    .tower .light2{ top:92px; width:8px; height:8px; }
+.menu-title {
+  font-size: clamp(38px, 7vw, 64px);
+  font-weight: 250;
+  line-height: 1;
+  margin: 10px 0 18px;
+  letter-spacing: 0.04em;
+}
 
-    .foreground{
-      position:absolute;
-      left:0; right:0; bottom:0;
-      height:30%;
-      background:
-        linear-gradient(180deg, transparent, rgba(0,0,0,.18)),
-        linear-gradient(180deg, #10151a, #07090b);
-      border-top:1px solid rgba(255,255,255,.04);
-      z-index:2;
-    }
+.menu-title .slashes {
+  color: var(--accent);
+  font-weight: 500;
+  text-shadow: 0 0 18px rgba(255, 111, 77, 0.28);
+}
 
-    .console{
-      position:absolute;
-      left:0;
-      bottom:0;
-      width:28%;
-      min-width:220px;
-      height:42%;
-      background:
-        linear-gradient(180deg, rgba(16,20,24,.82), rgba(8,10,12,.96));
-      border-right:1px solid rgba(255,255,255,.05);
-      box-shadow:20px 0 80px rgba(0,0,0,.28);
-      z-index:3;
-    }
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
 
-    .console::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(circle at 20% 18%, rgba(255,107,74,.18), transparent 12%),
-        linear-gradient(180deg, transparent, rgba(255,255,255,.02));
-      pointer-events:none;
-    }
+.menu-panel {
+  background: rgba(6, 11, 18, 0.44);
+  border: 1px solid rgba(120, 169, 220, 0.1);
+  border-radius: var(--radius);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
 
-    .overlay{
-      position:relative;
-      z-index:5;
-      min-height:100vh;
-      padding:7vh 6vw 6vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
-    .menu-shell{
-      width:min(560px, 88vw);
-      background:linear-gradient(180deg, rgba(8,12,16,.18), rgba(8,12,16,.10));
-      backdrop-filter: blur(6px);
-      border:1px solid rgba(255,255,255,.07);
-      box-shadow:0 24px 60px rgba(0,0,0,.18);
-      position:relative;
-    }
+.menu-item {
+  border-top: 1px solid rgba(120, 169, 220, 0.08);
+}
 
-    .menu-shell::before{
-      content:"";
-      position:absolute;
-      left:0; right:0; top:0;
-      height:2px;
-      background:linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity:.9;
-    }
+.menu-item:first-child { border-top: 0; }
 
-    .menu-head{
-      padding:22px 26px 14px;
-      position:relative;
-    }
+.menu-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  padding: 0 22px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: clamp(18px, 2.4vw, 24px);
+  letter-spacing: 0.015em;
+  position: relative;
+  transition: background 220ms ease, color 220ms ease, transform 220ms ease;
+}
 
-    .menu-head::before{
-      content:"";
-      position:absolute;
-      top:26px;
-      left:18px;
-      width:22px;
-      height:1px;
-      background:var(--cyan);
-      opacity:.8;
-    }
+.menu-link::before {
+  content: ">";
+  color: transparent;
+  transform: translateX(-6px);
+  transition: color 220ms ease, transform 220ms ease;
+}
 
-    .menu-head::after{
-      content:"";
-      position:absolute;
-      top:26px;
-      right:18px;
-      width:22px;
-      height:1px;
-      background:var(--cyan);
-      opacity:.8;
-    }
+.menu-link:hover,
+.menu-link:focus-visible,
+.menu-link.active {
+  background: linear-gradient(90deg, rgba(255, 111, 77, 0.18), rgba(255, 111, 77, 0.05), transparent);
+  color: #ffd6cc;
+  outline: none;
+}
 
-    .eyebrow{
-      font-size:.82rem;
-      text-transform:uppercase;
-      letter-spacing:.22em;
-      color:var(--muted);
-      margin-bottom:8px;
-    }
+.menu-link:hover::before,
+.menu-link:focus-visible::before,
+.menu-link.active::before {
+  color: var(--accent);
+  transform: translateX(0);
+}
 
-    .title{
-      font-size:clamp(1.8rem, 4vw, 3.1rem);
-      letter-spacing:.08em;
-      font-weight:300;
-      text-transform:uppercase;
-      margin:0;
-    }
+.menu-link .label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-    .title .accent{
-      color:var(--accent);
-      font-weight:500;
-    }
+.side-panel {
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
 
-    .menu-list{
-      list-style:none;
-      margin:0;
-      padding:2px 14px 20px;
-    }
+.status-card,
+.directive-card {
+  background: linear-gradient(180deg, rgba(9, 17, 28, 0.9), rgba(7, 13, 21, 0.92));
+  border: 1px solid rgba(120, 169, 220, 0.12);
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+  position: relative;
+  overflow: hidden;
+}
 
-    .menu-item{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      width:100%;
-      border:0;
-      border-top:1px solid rgba(255,255,255,.05);
-      background:transparent;
-      color:var(--text);
-      text-align:left;
-      padding:14px 12px;
-      font-size:clamp(1.2rem, 2vw, 1.9rem);
-      font-weight:300;
-      letter-spacing:.02em;
-      cursor:pointer;
-      transition:background .15s ease, transform .15s ease, color .15s ease;
-    }
+.status-card::before,
+.directive-card::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,111,77,0.5), transparent);
+  opacity: 0.7;
+}
 
-    .menu-item .arrow{
-      color:transparent;
-      transition:color .15s ease, transform .15s ease;
-    }
+.panel-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: 10px;
+}
 
-    .menu-item.active{
-      color:var(--accent);
-      background:linear-gradient(90deg, rgba(255,107,74,.10), rgba(255,107,74,.03) 62%, transparent);
-    }
+.stat-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(120, 169, 220, 0.07);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 
-    .menu-item.active .arrow{
-      color:var(--accent);
-      transform:translateX(3px);
-    }
+.stat-line:last-child { border-bottom: 0; }
 
-    .menu-item:hover{
-      background:rgba(255,255,255,.03);
-    }
+.stat-key { color: var(--muted); }
+.stat-value { color: var(--text); text-align: right; }
+.stat-value.alert { color: #ffd4c8; text-shadow: 0 0 14px rgba(255, 111, 77, 0.2); }
+.stat-value.ok { color: var(--cyan); }
 
-    .detail{
-      align-self:flex-end;
-      width:min(380px, 76vw);
-      background:linear-gradient(180deg, rgba(10,12,15,.55), rgba(10,12,15,.28));
-      backdrop-filter: blur(6px);
-      border:1px solid rgba(255,255,255,.08);
-      padding:18px 18px 16px;
-      position:relative;
-      box-shadow:0 18px 40px rgba(0,0,0,.15);
-    }
+.directive-main {
+  font-size: 18px;
+  line-height: 1.35;
+  margin-bottom: 12px;
+  color: #fff3ef;
+}
 
-    .detail::before{
-      content:"";
-      position:absolute;
-      left:0; top:0;
-      width:100%;
-      height:2px;
-      background:linear-gradient(90deg, var(--accent), transparent 72%);
-    }
+.directive-sub {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
 
-    .detail-title{
-      margin:0 0 10px;
-      font-size:1.35rem;
-      font-weight:500;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:#ffd8cd;
-    }
+.boot-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at center, rgba(34, 8, 4, 0.34), transparent 36%),
+    linear-gradient(180deg, rgba(2, 3, 5, 0.98), rgba(4, 4, 6, 0.985));
+  overflow: hidden;
+  transition: opacity 700ms ease, visibility 700ms ease;
+}
 
-    .detail-text{
-      margin:0;
-      font-size:1rem;
-      line-height:1.55;
-      color:#c7d0d9;
-    }
+.boot-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
 
-    .reward{
-      margin-top:12px;
-      color:var(--accent);
-      font-size:.98rem;
-      letter-spacing:.05em;
-    }
+.boot-noise,
+.boot-grid,
+.boot-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
 
-    .footer-status{
-      position:absolute;
-      left:50%;
-      bottom:4.5vh;
-      transform:translateX(-50%);
-      font-size:.86rem;
-      color:var(--muted);
-      letter-spacing:.16em;
-      text-transform:lowercase;
-      z-index:6;
-    }
+.boot-grid {
+  background:
+    linear-gradient(rgba(255, 111, 77, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 111, 77, 0.08) 1px, transparent 1px);
+  background-size: 14px 14px;
+  opacity: 0.22;
+  transform: scale(1.05);
+  filter: blur(0.3px);
+}
 
-    .footer-status::before,
-    .footer-status::after{
-      content:"";
-      display:inline-block;
-      width:46px;
-      height:1px;
-      background:rgba(255,255,255,.12);
-      vertical-align:middle;
-      margin:0 14px;
-    }
+.boot-noise {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,111,77,0.07), transparent 12%),
+    radial-gradient(circle at 80% 50%, rgba(255,111,77,0.08), transparent 14%),
+    radial-gradient(circle at 50% 75%, rgba(255,111,77,0.05), transparent 16%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  animation: pulseNoise 2.2s ease-in-out infinite;
+}
 
-    @media (max-width: 760px){
-      .overlay{
-        padding:5vh 4.5vw 5vh;
-      }
-      .console{
-        width:42%;
-        min-width:150px;
-        height:34%;
-      }
-      .tower{
-        right:10%;
-        bottom:29%;
-        transform:scale(.82);
-      }
-      .menu-shell{
-        width:min(92vw, 520px);
-      }
-      .detail{
-        width:min(92vw, 360px);
-      }
-      .footer-status{
-        bottom:3.4vh;
-        font-size:.74rem;
-      }
-      .footer-status::before,
-      .footer-status::after{
-        width:22px;
-        margin:0 8px;
-      }
-    }
+.boot-vignette {
+  background: radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.72) 100%);
+}
+
+@keyframes pulseNoise {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.95; }
+}
+
+.boot-core {
+  width: min(92vw, 880px);
+  min-height: 68vh;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.boot-frame {
+  width: min(72vw, 520px);
+  height: min(72vw, 520px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition: width 700ms ease, height 700ms ease;
+}
+
+.boot-frame.expanded {
+  width: min(92vw, 780px);
+  height: min(68vh, 520px);
+}
+
+.corner {
+  position: absolute;
+  width: 88px;
+  height: 88px;
+  opacity: 0.96;
+  transition: transform 700ms ease;
+  filter: drop-shadow(0 0 10px rgba(255, 153, 0, 0.42));
+}
+
+.corner::before,
+.corner::after {
+  content: "";
+  position: absolute;
+  background: linear-gradient(90deg, #ff8d00, #ffb347);
+  box-shadow: 0 0 14px rgba(255, 149, 0, 0.38);
+}
+
+.corner::before { width: 56px; height: 5px; }
+.corner::after { width: 5px; height: 56px; }
+
+.corner.tl { top: 0; left: 0; }
+.corner.tr { top: 0; right: 0; transform: scaleX(-1); }
+.corner.bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.corner.br { bottom: 0; right: 0; transform: scale(-1); }
+
+.corner.tl::before, .corner.tr::before { top: 0; left: 0; }
+.corner.tl::after, .corner.tr::after { top: 0; left: 0; }
+.corner.bl::before, .corner.br::before { top: 0; left: 0; }
+.corner.bl::after, .corner.br::after { top: 0; left: 0; }
+
+.boot-content {
+  width: min(78vw, 620px);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 500ms ease, transform 500ms ease;
+  color: #ffd9bd;
+  text-shadow: 0 0 14px rgba(255, 123, 0, 0.18);
+  font-family: "Courier New", ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.boot-content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.boot-header {
+  font-size: clamp(14px, 2vw, 18px);
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #ffb36b;
+}
+
+.boot-title {
+  font-size: clamp(24px, 4.1vw, 34px);
+  margin-bottom: 16px;
+  color: #ffe1c9;
+}
+
+.typed-lines {
+  display: grid;
+  gap: 10px;
+  font-size: clamp(13px, 2vw, 18px);
+  margin-bottom: 16px;
+  min-height: 178px;
+}
+
+.typed-line {
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  white-space: pre-wrap;
+}
+
+.typed-line.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.boot-directive {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 140, 0, 0.4);
+  border-radius: 16px;
+  background: rgba(65, 18, 5, 0.24);
+  color: #ffe2c4;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.boot-directive.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.progress-line {
+  margin-top: 18px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 128, 0, 0.14);
+  overflow: hidden;
+  border: 1px solid rgba(255, 146, 0, 0.12);
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff7800, #ffb347);
+  box-shadow: 0 0 18px rgba(255, 123, 0, 0.38);
+  transition: width 280ms ease;
+}
+
+.skip {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  background: transparent;
+  color: rgba(255, 220, 194, 0.72);
+  border: 1px solid rgba(255, 160, 97, 0.18);
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.skip:hover { color: #fff0e2; border-color: rgba(255, 160, 97, 0.34); }
+
+@media (max-width: 760px) {
+  .app { padding: 18px 12px; }
+  .menu-shell { padding: 28px 14px 14px; border-radius: 24px; }
+  .menu-grid { grid-template-columns: 1fr; }
+  .menu-link { min-height: 64px; font-size: 18px; padding: 0 16px; }
+  .side-panel { padding: 12px; }
+  .boot-core { min-height: 100vh; }
+  .boot-frame.expanded { width: min(92vw, 680px); height: min(60vh, 480px); }
+  .corner { width: 72px; height: 72px; }
+  .corner::before { width: 42px; }
+  .corner::after { height: 42px; }
+  .typed-lines { min-height: 190px; }
+}
+
   </style>
 </head>
 <body>
-  <div class="scene">
-    <div class="fog"></div>
-    <div class="mountains"></div>
+  <div class="boot-overlay" id="bootOverlay" aria-hidden="false">
+    <div class="boot-grid"></div>
+    <div class="boot-noise"></div>
+    <div class="boot-vignette"></div><div class="boot-core">
+  <div class="boot-frame" id="bootFrame">
+    <span class="corner tl"></span>
+    <span class="corner tr"></span>
+    <span class="corner bl"></span>
+    <span class="corner br"></span>
 
-    <div class="tower">
-      <div class="mast"></div>
-      <div class="platform"></div>
-      <div class="light"></div>
-      <div class="light2"></div>
+    <div class="boot-content" id="bootContent">
+      <div class="boot-header">
+        <span>OH7 INTERFACE v0.66</span>
+        <span id="bootClock">--:--</span>
+      </div>
+      <div class="boot-title">REALITY PAUSE // SYSTEM BOOT</div>
+      <div class="typed-lines" id="typedLines"></div>
+      <div class="boot-directive" id="bootDirective"></div>
+      <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
     </div>
-
-    <div class="foreground"></div>
-    <div class="console"></div>
-
-    <div class="overlay">
-      <section class="menu-shell">
-        <div class="menu-head">
-          <div class="eyebrow">OH7 system</div>
-          <h1 class="title">OH7 <span class="accent">//</span> Pause</h1>
-        </div>
-
-        <ul class="menu-list" id="menuList"></ul>
-      </section>
-
-      <section class="detail">
-        <h2 class="detail-title" id="detailTitle">Upload Artifact</h2>
-        <p class="detail-text" id="detailText">
-          Log a new or simulated output for today. A day only counts if a file exists.
-        </p>
-        <div class="reward" id="detailReward">{Reward: +30 XP}</div>
-      </section>
-    </div>
-
-    <div class="footer-status">operator verified</div>
   </div>
+  <button class="skip" id="skipBoot" type="button">Skip Boot</button>
+</div>
 
-  <script>
-    const items = [
-      {
-        label: "Resume",
-        text: "Return to the current objective and continue the run.",
-        reward: "{Track: stay in motion}"
-      },
-      {
-        label: "Campaign",
-        text: "Check recent logs, current arc, and what the world thinks happened.",
-        reward: "{Campfire access}"
-      },
-      {
-        label: "Upload Artifact",
-        text: "Log a new or simulated output for today. A day only counts if a file exists.",
-        reward: "{Reward: +30 XP}"
-      },
-      {
-        label: "Fight Boss",
-        text: "Spawn the current enemy based on drift, procrastination, or chaos level.",
-        reward: "{Boss scaling active}"
-      },
-      {
-        label: "Character Sheet",
-        text: "Open stats, level, gold, stamina, and current debuffs.",
-        reward: "{Theo profile linked}"
-      },
-      {
-        label: "Creative Prompt",
-        text: "Generate a clean challenge for music, writing, or building.",
-        reward: "{Reward: +20 XP}"
-      },
-      {
-        label: "Daily Mission",
-        text: "Receive the one action most likely to move today forward.",
-        reward: "{Mission ready}"
-      },
-      {
-        label: "OH7",
-        text: "Summon OH7 for guidance, mockery, or recalibration.",
-        reward: "{Neural handshake stable}"
+  </div>  <main class="app">
+    <section class="menu-shell" id="menuShell">
+      <div class="menu-topline">
+        <div class="menu-brand">OH7 SYSTEM</div>
+        <div id="dateStamp">--</div>
+      </div><h1 class="menu-title">OH7 <span class="slashes">//</span> PAUSE</h1>
+
+  <div class="menu-grid">
+    <div class="menu-panel">
+      <ul class="menu-list" id="menuList">
+        <li class="menu-item"><a class="menu-link" href="#resume"><span class="label">Resume</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#campaign"><span class="label">Campaign</span></a></li>
+        <li class="menu-item"><a class="menu-link active" href="#upload-artifact"><span class="label">Upload Artifact</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#fight-boss"><span class="label">Fight Boss</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#character-sheet"><span class="label">Character Sheet</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#creative-prompt"><span class="label">Creative Prompt</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#daily-mission"><span class="label">Daily Mission</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#campfire-log"><span class="label">Campfire Log</span></a></li>
+        <li class="menu-item"><a class="menu-link" href="#oh7"><span class="label">OH7</span></a></li>
+      </ul>
+    </div>
+
+    <aside class="menu-panel side-panel">
+      <section class="status-card">
+        <div class="panel-label">Live Status</div>
+        <div class="stat-line"><span class="stat-key">Creative Output</span><span class="stat-value" id="creativeOutputDisplay">--</span></div>
+        <div class="stat-line"><span class="stat-key">Stamina</span><span class="stat-value" id="staminaDisplay">--</span></div>
+        <div class="stat-line"><span class="stat-key">Focus</span><span class="stat-value alert" id="focusDisplay">--</span></div>
+        <div class="stat-line"><span class="stat-key">Discipline</span><span class="stat-value" id="disciplineDisplay">--</span></div>
+        <div class="stat-line"><span class="stat-key">Boss Threat</span><span class="stat-value alert" id="bossDisplay">--</span></div>
+        <div class="stat-line"><span class="stat-key">Campfire Logs</span><span class="stat-value ok" id="campfireDisplay">--</span></div>
+      </section>
+
+      <section class="directive-card">
+        <div class="panel-label">Recommended Action</div>
+        <div class="directive-main" id="directiveMain">--</div>
+        <div class="directive-sub" id="directiveSub">Waiting for system data…</div>
+      </section>
+    </aside>
+  </div>
+</section>
+
+  </main>  <script>
+    const fallbackStatus = {
+      creativeOutput: 3,
+      stamina: 42,
+      focus: "UNSTABLE",
+      discipline: "RECOVERING",
+      boss: "RUSTLING DOUBT",
+      campfireEntries: 18,
+      activePrompt: "Finish 1 file before midnight",
+      dailyMission: "Creative Prompt > Fight Boss > Campfire Log",
+      bootUser: "THEO SOLACE",
+      systemStatus: "ACTIVE"
+    };
+
+    const bootFrame = document.getElementById('bootFrame');
+    const bootContent = document.getElementById('bootContent');
+    const typedLines = document.getElementById('typedLines');
+    const bootDirective = document.getElementById('bootDirective');
+    const progressFill = document.getElementById('progressFill');
+    const bootOverlay = document.getElementById('bootOverlay');
+    const menuShell = document.getElementById('menuShell');
+    const skipBoot = document.getElementById('skipBoot');
+
+    function setClock() {
+      const now = new Date();
+      document.getElementById('bootClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('dateStamp').textContent = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    setClock();
+    setInterval(setClock, 30000);
+
+    async function loadStatus() {
+      try {
+        const response = await fetch('./status.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error('status.json not found');
+        const live = await response.json();
+        return { ...fallbackStatus, ...live };
+      } catch {
+        return fallbackStatus;
       }
-    ];
-
-    let selected = 2;
-    const menuList = document.getElementById("menuList");
-    const detailTitle = document.getElementById("detailTitle");
-    const detailText = document.getElementById("detailText");
-    const detailReward = document.getElementById("detailReward");
-
-    function render() {
-      menuList.innerHTML = "";
-      items.forEach((item, i) => {
-        const li = document.createElement("li");
-        const btn = document.createElement("button");
-        btn.className = "menu-item" + (i === selected ? " active" : "");
-        btn.innerHTML = `<span class="arrow">›</span><span>${item.label}</span>`;
-        btn.addEventListener("click", () => {
-          selected = i;
-          updateDetail();
-          render();
-        });
-        li.appendChild(btn);
-        menuList.appendChild(li);
-      });
     }
 
-    function updateDetail() {
-      const item = items[selected];
-      detailTitle.textContent = item.label;
-      detailText.textContent = item.text;
-      detailReward.textContent = item.reward;
+    function populateSidebar(status) {
+      document.getElementById('creativeOutputDisplay').textContent = `${status.creativeOutput} FILE${status.creativeOutput === 1 ? '' : 'S'}`;
+      document.getElementById('staminaDisplay').textContent = `${status.stamina}%`;
+      document.getElementById('focusDisplay').textContent = status.focus;
+      document.getElementById('disciplineDisplay').textContent = status.discipline;
+      document.getElementById('bossDisplay').textContent = status.boss;
+      document.getElementById('campfireDisplay').textContent = status.campfireEntries;
+      document.getElementById('directiveMain').textContent = status.activePrompt;
+      document.getElementById('directiveSub').textContent = status.dailyMission;
     }
 
-    function move(delta) {
-      selected = (selected + delta + items.length) % items.length;
-      updateDetail();
-      render();
+    function buildBootLines(status) {
+      return [
+        `USER: ${status.bootUser}`,
+        `STATUS: ${status.systemStatus}`,
+        `CREATIVE OUTPUT: ${status.creativeOutput} FILE${status.creativeOutput === 1 ? '' : 'S'}`,
+        `STAMINA: ${status.stamina}%`,
+        `FOCUS: ${status.focus}`,
+        `DISCIPLINE: ${status.discipline}`,
+        `BOSS THREAT: ${status.boss}`,
+        `CAMPFIRE LOGS: ${status.campfireEntries}`
+      ];
     }
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown") move(1);
-      if (e.key === "ArrowUp") move(-1);
+    function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function typeLine(text, index, total) {
+      const line = document.createElement('div');
+      line.className = 'typed-line';
+      typedLines.appendChild(line);
+      line.classList.add('show');
+
+      let out = '';
+      const speed = index < 2 ? 18 : 13;
+      for (const ch of text) {
+        out += ch;
+        line.textContent = out;
+        progressFill.style.width = `${Math.min(100, ((index + out.length / text.length) / total) * 92 + 8)}%`;
+        await wait(speed);
+      }
+      await wait(70);
+    }
+
+    let bootFinished = false;
+
+    async function runBoot(status) {
+      populateSidebar(status);
+      const lines = buildBootLines(status);
+
+      await wait(280);
+      bootFrame.classList.add('expanded');
+      await wait(380);
+      bootContent.classList.add('visible');
+
+      for (let i = 0; i < lines.length; i++) {
+        if (bootFinished) return;
+        await typeLine(lines[i], i, lines.length);
+      }
+
+      bootDirective.innerHTML = `RECOMMENDED ACTION:<br>&gt; ${status.activePrompt.toUpperCase()}`;
+      bootDirective.classList.add('show');
+      progressFill.style.width = '100%';
+
+      await wait(1150);
+      finishBoot();
+    }
+
+    function finishBoot() {
+      if (bootFinished) return;
+      bootFinished = true;
+      bootOverlay.classList.add('hidden');
+      bootOverlay.setAttribute('aria-hidden', 'true');
+      menuShell.classList.add('ready');
+    }
+
+    skipBoot.addEventListener('click', finishBoot);
+    bootOverlay.addEventListener('click', (event) => {
+      if (event.target === bootOverlay) finishBoot();
     });
 
-    let touchStartY = null;
-    document.addEventListener("touchstart", (e) => {
-      touchStartY = e.changedTouches[0].clientY;
-    }, { passive: true });
-
-    document.addEventListener("touchend", (e) => {
-      if (touchStartY == null) return;
-      const dy = e.changedTouches[0].clientY - touchStartY;
-      if (Math.abs(dy) > 40) {
-        move(dy < 0 ? 1 : -1);
-      }
-      touchStartY = null;
-    }, { passive: true });
-
-    updateDetail();
-    render();
-  </script>
-</body>
-</html>
+    loadStatus().then(runBoot);
+  </script></body>
+  </html>
